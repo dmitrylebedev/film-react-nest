@@ -1,17 +1,19 @@
 import { FilmDetailsDto, FilmDto } from '../films/dto/films.dto';
+import { toFilmDetailsDto, toFilmDto } from '../films/films.mapper';
+import { FilmEntity } from '../films/schemas/film.schema';
 import { FilmsRepository } from './films.repository';
 import { loadFilmSeed } from './films.seed';
 
 export class FilmsMemoryRepository extends FilmsRepository {
-  private readonly films: FilmDetailsDto[] = loadFilmSeed();
+  private readonly films: FilmEntity[] = loadFilmSeed();
 
   async findAll(): Promise<FilmDto[]> {
-    return this.films.map((film) => this.toFilmDto(film));
+    return this.films.map((film) => toFilmDto(film));
   }
 
   async findById(id: string): Promise<FilmDetailsDto | null> {
     const film = this.films.find((item) => item.id === id);
-    return film ? structuredClone(film) : null;
+    return film ? toFilmDetailsDto(film) : null;
   }
 
   async takeSeats(
@@ -29,19 +31,5 @@ export class FilmsMemoryRepository extends FilmsRepository {
     }
     session.taken.push(...seats);
     return true;
-  }
-
-  private toFilmDto(film: FilmDetailsDto): FilmDto {
-    const dto = new FilmDto();
-    dto.id = film.id;
-    dto.rating = film.rating;
-    dto.director = film.director;
-    dto.tags = [...film.tags];
-    dto.title = film.title;
-    dto.about = film.about;
-    dto.description = film.description;
-    dto.image = film.image;
-    dto.cover = film.cover;
-    return dto;
   }
 }
