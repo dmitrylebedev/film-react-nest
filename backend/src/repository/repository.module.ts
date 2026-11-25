@@ -18,14 +18,23 @@ const isPostgres = process.env.DATABASE_DRIVER === 'postgres';
       ? [
           TypeOrmModule.forRootAsync({
             inject: ['CONFIG'],
-            useFactory: (config: AppConfig) => ({
-              type: 'postgres' as const,
-              url: config.database.url,
-              username: config.database.username,
-              password: config.database.password,
-              entities: [Film, Schedule],
-              synchronize: false,
-            }),
+            useFactory: (config: AppConfig) => {
+              const databaseUrl = new URL(config.database.url);
+              return {
+                type: 'postgres' as const,
+                host: databaseUrl.hostname,
+                port: Number(databaseUrl.port || 5432),
+                database: databaseUrl.pathname.slice(1),
+                username:
+                  config.database.username ||
+                  decodeURIComponent(databaseUrl.username),
+                password:
+                  config.database.password ||
+                  decodeURIComponent(databaseUrl.password),
+                entities: [Film, Schedule],
+                synchronize: false,
+              };
+            },
           }),
           TypeOrmModule.forFeature([Film, Schedule]),
         ]
