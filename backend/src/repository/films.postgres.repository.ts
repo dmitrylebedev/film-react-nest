@@ -12,8 +12,6 @@ export class FilmsPostgresRepository extends FilmsRepository {
   constructor(
     @InjectRepository(Film)
     private readonly films: Repository<Film>,
-    @InjectRepository(Schedule)
-    private readonly schedules: Repository<Schedule>,
     @InjectDataSource()
     private readonly dataSource: DataSource,
   ) {
