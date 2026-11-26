@@ -1,3 +1,4 @@
+import { Inject, Injectable, OnModuleDestroy } from '@nestjs/common';
 import {
   Model,
   model,
@@ -15,11 +16,15 @@ import { loadFilmSeed } from './films.seed';
 
 const FILM_MODEL = 'Film';
 
-export class FilmsMongoRepository extends FilmsRepository {
+@Injectable()
+export class FilmsMongoRepository
+  extends FilmsRepository
+  implements OnModuleDestroy
+{
   private filmModel: Model<FilmEntity>;
   private readonly ready: Promise<void>;
 
-  constructor(private readonly config: AppConfig) {
+  constructor(@Inject('CONFIG') private readonly config: AppConfig) {
     super();
     this.ready = this.connect();
   }
